@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Atlas Doğa'nın Dünyası</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff6b6b">
+</head>
+<body>
+    <header>
+        <h1>Atlas Doğa'nın Dünyası</h1>
+        <button id="theme-toggle" aria-label="Temayı Değiştir">🌓</button>
+    </header>
+
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-target="curriculum-tab">📅 Günlük</button>
+        <button class="nav-btn" data-target="ai-tab">✨ AI Önerileri</button>
+    </nav>
+
+    <main>
+        <!-- Curriculum Tab -->
+        <section id="curriculum-tab" class="tab-content active">
+            <h2>Eylül: Okulum ve Ben</h2>
+            <div id="month-summary" class="card" style="background: rgba(79, 70, 229, 0.1); border-left: 4px solid var(--primary); font-size: 0.9rem; margin-bottom: 20px;">
+                <!-- Summary injected here -->
+            </div>
+            <div id="activities-list" class="activity-container">
+                <div class="loader">Yükleniyor...</div>
+            </div>
+        </section>
+
+        <!-- AI Recommendations Tab -->
+        <section id="ai-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="color: var(--primary);">Atlas Doğa İçin Öneriler ✨</h2>
+                <button id="refresh-ai-btn" style="padding: 8px 12px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Yenile 🔄</button>
+            </div>
+            <div id="ai-content" class="ai-container">
+                <div class="loader">Analiz Ediliyor...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content glass">
+            <h3>Nasıl Geçti?</h3>
+            <p id="modal-activity-title" style="margin-bottom: 15px; font-weight: 500;"></p>
+            
+            <textarea id="modal-note" placeholder="Eklemek istediğiniz ebeveyn gözlemi veya notu... (Örn: Makası çok rahat tuttu)" style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-color); margin-bottom: 15px; font-family: inherit; resize: none;"></textarea>
+
+            <div class="feedback-buttons">
+                <button class="fb-btn fb-love" data-value="Çok Sevdi">😍 Çok Sevdi</button>
+                <button class="fb-btn fb-done" data-value="Yapıldı">✅ Yapıldı</button>
+                <button class="fb-btn fb-hard" data-value="Zorlandı">🤔 Zorlandı</button>
+                <button class="fb-btn fb-skip" data-value="İlgilenmedi">⏭️ İlgilenmedi</button>
+            </div>
+            <button class="close-btn">İptal</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

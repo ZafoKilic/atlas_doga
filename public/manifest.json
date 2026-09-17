@@ -1,0 +1,9 @@
+{
+  "name": "Atlas Doğa'nun Küçük Dünyası",
+  "short_name": "AtlasDoğa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdf2f8",
+  "theme_color": "#f43f5e"
+}
+}

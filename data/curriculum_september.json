@@ -1,0 +1,61 @@
+{
+  "month": "Eylül",
+  "theme": "Okulum ve Ben / Back to School & Fall",
+  "summary": "Bu ayın temel amacı, çocukların okul ortamına, kurallara ve yeni arkadaşlarına uyum sağlamasıdır (Öz Farkındalık ve İletişim Becerisi). Ayrıca İngilizce programıyla birlikte sonbahar mevsiminin doğadaki etkilerini gözlemleyerek merak duygularını ve bilimsel gözlem becerilerini geliştirmeyi hedefliyoruz.",
+  "activities": [
+    {
+      "id": "trk_1",
+      "category": "Türkçe / Müzik",
+      "title": "Şiir/Şarkı: Okulum, Ben Çocuğum",
+      "description": "Önem ve Beklenti: Çocuğun okulu sevmesi, dinleme/izleme becerilerini geliştirmesi ve yeni kavramları müziksel dinleme yoluyla öğrenmesi beklenir. Kelimeleri doğru telaffuz etmesine dikkat edebilirsiniz."
+    },
+    {
+      "id": "mat_1",
+      "category": "Matematik",
+      "title": "1-10 Arası Ritmik Sayma",
+      "description": "Önem ve Beklenti: Temel sayı kavramını algılaması ve nesne miktarını belirtebilmesi hedeflenir. Günlük hayattaki nesneleri (oyuncaklar, tabaklar) sayarak destekleyebilirsiniz."
+    },
+    {
+      "id": "fen_1",
+      "category": "Fen Bilimleri",
+      "title": "Aynada Beden İncelemesi & Boy/Kilo",
+      "description": "Önem ve Beklenti: Çocuğun fiziksel özelliklerini fark etmesi (Kendini Tanıma) ve bedensel farkındalığının artması önemlidir. Aynada kendi organlarını saymasını isteyebilirsiniz."
+    },
+    {
+      "id": "fen_2",
+      "category": "Fen Bilimleri",
+      "title": "Suda Batan ve Yüzen Nesneleri Keşfetme",
+      "description": "Önem ve Beklenti: Merak eğilimini ve bilimsel gözlem yapma becerisini destekler. Ağır/Hafif kavramlarını kıyaslayabilmesi hedeflenir (Karşılaştırma Becerisi)."
+    },
+    {
+      "id": "sosyal_1",
+      "category": "Sosyal Beceri",
+      "title": "Sınıf Kuralları ve Tanışma Draması",
+      "description": "Önem ve Beklenti: Yeni ortama girdiğinde selam vermesi, arkadaşlık (Dostluk) ve nezaket kurallarını kavraması beklenir. Evde sırayla konuşma oyunları oynayabilirsiniz."
+    },
+    {
+      "id": "sanat_1",
+      "category": "Sanat",
+      "title": "Okul ve Dinazor Yapımı (Boyama/Çizgi)",
+      "description": "Önem ve Beklenti: İnce motor kaslarının kontrolünü sağlamak ve yaratıcılığı geliştirmek (Sanatsal Uygulama). Kalemi/makası nasıl tuttuğuna (kas kontrolü) dikkat edin."
+    },
+    {
+      "id": "eng_1",
+      "category": "English",
+      "title": "Greetings (Hello, How are you?)",
+      "description": "Önem ve Beklenti: İngilizce ile ilk etkileşim. Öğretmen, arkadaş ve velileri İngilizce selamlayabilme (Good morning, I'm fine) özgüvenini kazanması hedeflenir."
+    },
+    {
+      "id": "eng_3",
+      "category": "English",
+      "title": "Fall Theme: Lava Lamp Experiment",
+      "description": "Önem ve Beklenti: Sonbahar teması (Fall/Autumn). Yağ ve renkli su ile yoğunluk farkını eğlenceli şekilde deneyimleme. İngilizce renk (red, yellow) komutlarını alma."
+    },
+    {
+      "id": "eng_4",
+      "category": "English",
+      "title": "Cooking: No-bake apple donuts",
+      "description": "Önem ve Beklenti: İngilizce yönergeleri takip ederek ürün ortaya koyma. Elma dilimlerine krem peynir sürerek el göz koordinasyonunu ve ince motor becerilerini destekleme."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "month": "Ekim",
+  "theme": "Sonbahar ve Doğa",
+  "activities": [
+    {
+      "id": "eng_2",
+      "category": "İngilizce",
+      "title": "Renkler (Red, Yellow, Orange)"
+    },
+    {
+      "id": "math_2",
+      "category": "Matematik",
+      "title": "1'den 10'a kadar sayma"
+    },
+    {
+      "id": "sci_2",
+      "category": "Fen",
+      "title": "Yaprakların renk değişimi"
+    },
+    {
+      "id": "motor_2",
+      "category": "Motor Beceriler",
+      "title": "Yırtma-Yapıştırma (Sonbahar Ağacı)"
+    }
+  ]
+}
