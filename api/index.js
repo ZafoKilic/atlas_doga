@@ -29,7 +29,7 @@ async function generateRecommendations() {
     const progress = getProgress();
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     const prompt = `
 Sen bir çocuk gelişimi uzmanısın. 4 yaşındaki (48-60 ay) bir çocuğun ebeveynine tavsiyeler vereceksin.
