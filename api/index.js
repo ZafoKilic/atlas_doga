@@ -54,7 +54,7 @@ JSON formati soyle olmali:
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-5',
-    max_tokens: 1500,
+    max_tokens: 4096,
     messages: [{ role: 'user', content: prompt }]
   });
 
@@ -76,43 +76,3 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  const url = req.url || '';
-
-  // GET /api/curriculum
-  if (req.method === 'GET' && url.includes('/curriculum')) {
-    const curriculum = getCurriculum();
-    const progress = getProgress();
-    curriculum.activities = curriculum.activities.map((act) => ({
-      ...act,
-      feedback: progress[act.id] || null
-    }));
-    return res.status(200).json(curriculum);
-  }
-
-  // GET /api/recommendations
-  if (req.method === 'GET' && url.includes('/recommendations')) {
-    try {
-      const recs = await generateRecommendations();
-      return res.status(200).json(recs);
-    } catch (e) {
-      console.error('Recommendations error:', e);
-      return res.status(500).json({
-        analysis: 'API hatasi olustu.',
-        advice: 'Lutfen daha sonra tekrar deneyin.',
-        recommendations: {}
-      });
-    }
-  }
-
-  // POST /api/feedback
-  if (req.method === 'POST' && url.includes('/feedback')) {
-    const { activityId, feedback, note } = req.body || {};
-    if (activityId) saveProgress(activityId, { status: feedback, note });
-    return res.status(200).json({ success: true });
-  }
-
-  return res.status(404).json({ error: 'Not found' });
-};
