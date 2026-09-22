@@ -1,115 +1,118 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Anthropic = require('@anthropic-ai/sdk');
 const path = require('path');
 const fs = require('fs');
 
 // --- Data helpers ---
 function getCurriculum() {
-    try {
-        const p = path.join(process.cwd(), 'data', 'curriculum_september.json');
-        return JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch (e) {
-        return { activities: [] };
-    }
+  try {
+    const p = path.join(process.cwd(), 'data', 'curriculum_september.json');
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch (e) {
+    return { activities: [] };
+  }
 }
 
-// In-memory progress store (resets on cold start – acceptable for MVP)
+// In-memory progress store (resets on cold start - acceptable for MVP)
 const progressStore = {};
 
 function getProgress() {
-    return progressStore;
+  return progressStore;
 }
 
 function saveProgress(activityId, feedback) {
-    progressStore[activityId] = feedback;
+  progressStore[activityId] = feedback;
 }
 
-// --- Gemini recommendation generator ---
+// --- Claude recommendation generator ---
 async function generateRecommendations() {
-    const curriculum = getCurriculum();
-    const progress = getProgress();
+  const curriculum = getCurriculum();
+  const progress = getProgress();
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const prompt = `
-Sen bir çocuk gelişimi uzmanısın. 4 yaşındaki (48-60 ay) bir çocuğun ebeveynine tavsiyeler vereceksin.
-Şu anda Eylül ayındayız. Çocuğun Eylül ayı okul müfredatı ve şu ana kadar ebeveynin girdiği geri bildirimler ile serbest notları aşağıdadır:
-
-Eylül Ayı Müfredatı (Amaç ve Etkinlikler):
+  const prompt = `
+Sen bir cocuk gelisimi uzmanisin. 4 yasindaki (48-60 ay) bir cocugun ebeveynine tavsiyeler vereceksin.
+Su anda Eylul ayindayiz. Cocugun Eylul ayi okul mufredati ve su ana kadar ebeveynin girdigi geri bildirimler ile serbest notlar asagidadir:
+Eylul Ayi Mufredati (Amac ve Etkinlikler):
 ${JSON.stringify(curriculum)}
-
-Şu Ana Kadarki Geri Bildirim ve Ebeveyn Notları:
+Su Ana Kadarki Geri Bildirim ve Ebeveyn Notlari:
 ${JSON.stringify(progress)}
-
-Lütfen bu verilere bakarak, ebeveynin düştüğü metin notlarını (varsa) da dikkate alıp, Eylül ayının geri kalanı için çocuğun zorlandığı konuları aşmasına veya sevdiği konuları daha da geliştirmesine yardımcı olacak son derece spesifik pedagojik öneriler hazırla.
-Çıktını AŞAĞIDAKİ JSON ŞEMASINA tam olarak uygun olarak üret. Ekstra metin, markdown vb. ekleme.
-
-JSON formatı şöyle olmalı:
+Lutfen bu verilere bakarak, ebeveynin dustugu metin notlarini (varsa) da dikkate alip, Eylul ayinin geri kalani icin cocugun zorlandigi konulari asmasina veya sevdigi konulari daha da gelistirmesine yardimci olacak son derece spesifik pedagojik oneriler hazirla.
+Ciktini ASAGIDAKI JSON SEMASINA tam olarak uygun olarak uret. SADECE JSON dondur; aciklama, markdown kod blogu veya baska hicbir ekstra metin ekleme, cevabin ilk karakteri { olmali.
+JSON formati soyle olmali:
 {
-  "analysis": "Güncel duruma ve ebeveyn notlarına dair kısa analiz",
-  "advice": "Geri kalan Eylül ayı için hedefe yönelik tavsiye",
+  "analysis": "Guncel duruma ve ebeveyn notlarina dair kisa analiz",
+  "advice": "Geri kalan Eylul ayi icin hedefe yonelik tavsiye",
   "recommendations": {
-    "videos": [{ "title": "Video Adı", "url": "YouTube Linki" }],
-    "books": [{ "title": "Kitap Adı", "author": "Yazar" }],
-    "activities": [{ "title": "Aktivite Adı", "description": "Evde yapılabilecek aktivite açıklaması" }],
-    "locations": [{ "title": "İstanbul'da Gezi Lokasyonu", "description": "Müfredatla bağlantılı neden gidilmeli" }]
+    "videos": [{ "title": "Video Adi", "url": "YouTube Linki" }],
+    "books": [{ "title": "Kitap Adi", "author": "Yazar" }],
+    "activities": [{ "title": "Aktivite Adi", "description": "Evde yapilabilecek aktivite aciklamasi" }],
+    "locations": [{ "title": "Istanbul'da Gezi Lokasyonu", "description": "Mufredatla baglantili neden gidilmeli" }]
   }
 }
-    `;
+`;
 
-    const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: 'application/json' }
-    });
+  const message = await anthropic.messages.create({
+    model: 'claude-sonnet-5',
+    max_tokens: 1500,
+    messages: [{ role: 'user', content: prompt }]
+  });
 
-    return JSON.parse(result.response.text());
+  const rawText = message.content
+    .filter((block) => block.type === 'text')
+    .map((block) => block.text)
+    .join('');
+
+  // Claude bazen istemeden kod blogu ile sarabilir; savunma amacli temizliyoruz
+  const cleaned = rawText.replace(/```json\s*|```/g, '').trim();
+  return JSON.parse(cleaned);
 }
 
 // --- Vercel serverless handler ---
 module.exports = async function handler(req, res) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  const url = req.url || '';
+
+  // GET /api/curriculum
+  if (req.method === 'GET' && url.includes('/curriculum')) {
+    const curriculum = getCurriculum();
+    const progress = getProgress();
+    curriculum.activities = curriculum.activities.map((act) => ({
+      ...act,
+      feedback: progress[act.id] || null
+    }));
+    return res.status(200).json(curriculum);
+  }
+
+  // GET /api/recommendations
+  if (req.method === 'GET' && url.includes('/recommendations')) {
+    try {
+      const recs = await generateRecommendations();
+      return res.status(200).json(recs);
+    } catch (e) {
+      console.error('Recommendations error:', e);
+      return res.status(500).json({
+        analysis: 'API hatasi olustu.',
+        advice: 'Lutfen daha sonra tekrar deneyin.',
+        recommendations: {}
+      });
     }
+  }
 
-    const url = req.url || '';
+  // POST /api/feedback
+  if (req.method === 'POST' && url.includes('/feedback')) {
+    const { activityId, feedback, note } = req.body || {};
+    if (activityId) saveProgress(activityId, { status: feedback, note });
+    return res.status(200).json({ success: true });
+  }
 
-    // GET /api/curriculum
-    if (req.method === 'GET' && url.includes('/curriculum')) {
-        const curriculum = getCurriculum();
-        const progress = getProgress();
-        curriculum.activities = curriculum.activities.map(act => ({
-            ...act,
-            feedback: progress[act.id] || null
-        }));
-        return res.status(200).json(curriculum);
-    }
-
-    // GET /api/recommendations
-    if (req.method === 'GET' && url.includes('/recommendations')) {
-        try {
-            const recs = await generateRecommendations();
-            return res.status(200).json(recs);
-        } catch (e) {
-            console.error('Recommendations error:', e);
-            return res.status(500).json({
-                analysis: 'API hatası oluştu.',
-                advice: 'Lütfen daha sonra tekrar deneyin.',
-                recommendations: {}
-            });
-        }
-    }
-
-    // POST /api/feedback
-    if (req.method === 'POST' && url.includes('/feedback')) {
-        const { activityId, feedback, note } = req.body || {};
-        if (activityId) saveProgress(activityId, { status: feedback, note });
-        return res.status(200).json({ success: true });
-    }
-
-    return res.status(404).json({ error: 'Not found' });
+  return res.status(404).json({ error: 'Not found' });
 };
