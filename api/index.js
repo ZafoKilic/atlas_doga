@@ -1,6 +1,7 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const path = require('path');
 const fs = require('fs');
+const { kv } = require('@vercel/kv');
 
 // --- Data helpers ---
 function getCurriculum() {
@@ -12,21 +13,32 @@ function getCurriculum() {
   }
 }
 
-// In-memory progress store (resets on cold start - acceptable for MVP)
-const progressStore = {};
+const PROGRESS_KEY = 'atlas-doga:progress';
 
-function getProgress() {
-  return progressStore;
+async function getProgress() {
+  try {
+    const data = await kv.get(PROGRESS_KEY);
+    return data || {};
+  } catch (e) {
+    console.error('KV read error:', e);
+    return {};
+  }
 }
 
-function saveProgress(activityId, feedback) {
-  progressStore[activityId] = feedback;
+async function saveProgress(activityId, feedback) {
+  const progress = await getProgress();
+  progress[activityId] = feedback;
+  try {
+    await kv.set(PROGRESS_KEY, progress);
+  } catch (e) {
+    console.error('KV write error:', e);
+  }
 }
 
 // --- Claude recommendation generator ---
 async function generateRecommendations() {
   const curriculum = getCurriculum();
-  const progress = getProgress();
+  const progress = await getProgress();
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -63,14 +75,12 @@ JSON formati soyle olmali:
     .map((block) => block.text)
     .join('');
 
-  // Claude bazen istemeden kod blogu ile sarabilir; savunma amacli temizliyoruz
   const cleaned = rawText.replace(/```json\s*|```/g, '').trim();
   return JSON.parse(cleaned);
 }
 
 // --- Vercel serverless handler ---
 module.exports = async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -81,10 +91,9 @@ module.exports = async function handler(req, res) {
 
   const url = req.url || '';
 
-  // GET /api/curriculum
   if (req.method === 'GET' && url.includes('/curriculum')) {
     const curriculum = getCurriculum();
-    const progress = getProgress();
+    const progress = await getProgress();
     curriculum.activities = curriculum.activities.map((act) => ({
       ...act,
       feedback: progress[act.id] || null
@@ -92,7 +101,6 @@ module.exports = async function handler(req, res) {
     return res.status(200).json(curriculum);
   }
 
-  // GET /api/recommendations
   if (req.method === 'GET' && url.includes('/recommendations')) {
     try {
       const recs = await generateRecommendations();
@@ -107,10 +115,9 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // POST /api/feedback
   if (req.method === 'POST' && url.includes('/feedback')) {
     const { activityId, feedback, note } = req.body || {};
-    if (activityId) saveProgress(activityId, { status: feedback, note });
+    if (activityId) await saveProgress(activityId, { status: feedback, note });
     return res.status(200).json({ success: true });
   }
 
