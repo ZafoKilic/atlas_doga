@@ -1,5 +1,5 @@
 // Service Worker for Kid Curriculum PWA - Atlas Doga
-const CACHE_NAME = 'atlas-doga-v1';
+const CACHE_NAME = 'atlas-doga-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -58,8 +58,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Static assets – cache first, then network
-  event.respondWith(
-    caches.match(request).then(cached => cached || networkFirst(request))
-  );
+  // Static assets – network first so deploys show up immediately, cache as fallback
+  event.respondWith(networkFirst(request));
 });
