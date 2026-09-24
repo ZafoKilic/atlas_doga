@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
+const { kv } = require('@vercel/kv');
 
 const curriculumPath = path.join(__dirname, '../data/curriculum_september.json');
-const progressPath = path.join(__dirname, '../data/progress.json');
+const PROGRESS_KEY = 'atlas-doga:progress';
 
 const getCurriculum = () => {
   try {
@@ -14,28 +15,29 @@ const getCurriculum = () => {
   }
 };
 
-const getProgress = () => {
+const getProgress = async () => {
   try {
-    const data = fs.readFileSync(progressPath, 'utf8');
-    return JSON.parse(data);
+    const data = await kv.get(PROGRESS_KEY);
+    return data || {};
   } catch (e) {
+    console.error('KV read error:', e);
     return {};
   }
 };
 
-const saveProgress = (activityId, feedback) => {
-  const progress = getProgress();
+const saveProgress = async (activityId, feedback) => {
+  const progress = await getProgress();
   progress[activityId] = feedback;
   try {
-    fs.writeFileSync(progressPath, JSON.stringify(progress, null, 2));
+    await kv.set(PROGRESS_KEY, progress);
   } catch (e) {
-    // Vercel'in serverless dosya sistemi salt-okunur olabilir; sessizce yok say
+    console.error('KV write error:', e);
   }
 };
 
 const generateRecommendations = async () => {
   const curriculum = getCurriculum();
-  const progress = getProgress();
+  const progress = await getProgress();
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
